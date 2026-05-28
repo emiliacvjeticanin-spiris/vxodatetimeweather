@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Info Banner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            background-color: transparent;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 4%;
+            box-sizing: border-box;
+            background: transparent;
+            color: black;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        #time-container {
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        #date {
+            font-size: clamp(10px, 1.5vw, 16px);
+            font-weight: 300;
+            color: #000000;
+            white-space: nowrap;
+            margin-top: 6px;
+        }
+
+        .divider {
+            width: 60%;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.25);
+            margin: 8px 0;
+        }
+
+        #temperature {
+            font-size: clamp(14px, 1.5vw, 20px);
+            font-weight: 300;
+            color: #000000;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="banner">
+        <div id="time-container">
+            <span id="hour">00</span><span class="separator">:</span><span id="min">00</span>
+        </div>
+        <div id="date">Laddar datum...</div>
+        <div class="divider"></div>
+        <div id="temperature">–°C</div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const days = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+            const months = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december'];
+
+            document.getElementById('hour').textContent = now.getHours().toString().padStart(2, '0');
+            document.getElementById('min').textContent = now.getMinutes().toString().padStart(2, '0');
+
+            const dateText = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+            document.getElementById('date').textContent = dateText;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=56.88&longitude=14.81&current_weather=true');
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                document.getElementById('temperature').textContent = `${temp}°C`;
+            } catch (e) {
+                document.getElementById('temperature').textContent = '–°C';
+            }
+        }
+
+        fetchWeather();
+        setInterval(fetchWeather, 10 * 60 * 1000);
+    </script>
+</body>
+</html>
